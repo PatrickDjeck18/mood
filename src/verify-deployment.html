@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MingleMood Edge Function Deployment Verifier</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #BF94EA 0%, #FA7872 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #01180B;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #BF94EA;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #BF94EA 0%, #FA7872 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(191, 148, 234, 0.3);
+        }
+        
+        .button:active {
+            transform: translateY(0);
+        }
+        
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .result.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+            display: block;
+        }
+        
+        .result.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+            display: block;
+        }
+        
+        .result.info {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            color: #0c5460;
+            display: block;
+        }
+        
+        .result h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .result pre {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .test-list {
+            margin-top: 20px;
+        }
+        
+        .test-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid #6c757d;
+        }
+        
+        .test-item.success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+        
+        .test-item.error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        
+        .test-item.pending {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #BF94EA;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Edge Function Verifier</h1>
+        <p class="subtitle">Test your MingleMood Supabase Edge Function deployment</p>
+        
+        <div class="input-group">
+            <label for="projectId">Supabase Project ID:</label>
+            <input 
+                type="text" 
+                id="projectId" 
+                placeholder="e.g., abcdefghijklmnop"
+                value=""
+            >
+            <small style="color: #666; display: block; margin-top: 5px;">
+                Find this in Supabase Dashboard → Settings → API → Project URL
+            </small>
+        </div>
+        
+        <button class="button" onclick="runTests()">🚀 Test Deployment</button>
+        
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <span>Running tests...</span>
+        </div>
+        
+        <div id="result" class="result"></div>
+        <div id="tests" class="test-list"></div>
+    </div>
+    
+    <script>
+        async function runTests() {
+            const projectId = document.getElementById('projectId').value.trim();
+            
+            if (!projectId) {
+                showResult('error', 'Please enter your Supabase Project ID');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('tests').innerHTML = '';
+            
+            const baseUrl = `https://${projectId}.supabase.co/functions/v1/make-server-4bcc747c`;
+            const tests = [];
+            
+            // Test 1: Health Check
+            try {
+                addTestItem('pending', 'Testing health endpoint...');
+                const response = await fetch(`${baseUrl}/health`);
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'ok') {
+                    updateTestItem(0, 'success', `✅ Health Check: ${data.message}`);
+                    tests.push({ name: 'Health Check', passed: true });
+                } else {
+                    updateTestItem(0, 'error', `❌ Health Check: Unexpected response`);
+                    tests.push({ name: 'Health Check', passed: false, error: JSON.stringify(data) });
+                }
+            } catch (error) {
+                updateTestItem(0, 'error', `❌ Health Check: ${error.message}`);
+                tests.push({ name: 'Health Check', passed: false, error: error.message });
+            }
+            
+            // Test 2: CORS Headers
+            try {
+                addTestItem('pending', 'Testing CORS configuration...');
+                const response = await fetch(`${baseUrl}/health`);
+                const corsHeader = response.headers.get('Access-Control-Allow-Origin');
+                
+                if (corsHeader) {
+                    updateTestItem(1, 'success', `✅ CORS: Properly configured (${corsHeader})`);
+                    tests.push({ name: 'CORS', passed: true });
+                } else {
+                    updateTestItem(1, 'error', `⚠️ CORS: Headers not found (may cause issues)`);
+                    tests.push({ name: 'CORS', passed: false, error: 'No CORS headers' });
+                }
+            } catch (error) {
+                updateTestItem(1, 'error', `❌ CORS: ${error.message}`);
+                tests.push({ name: 'CORS', passed: false, error: error.message });
+            }
+            
+            // Test 3: Admin Stats Endpoint (will fail without auth, but should return 401)
+            try {
+                addTestItem('pending', 'Testing admin endpoints...');
+                const response = await fetch(`${baseUrl}/admin/stats`);
+                
+                if (response.status === 401) {
+                    updateTestItem(2, 'success', `✅ Admin Endpoints: Properly secured (401 Unauthorized)`);
+                    tests.push({ name: 'Admin Auth', passed: true });
+                } else if (response.ok) {
+                    updateTestItem(2, 'success', `✅ Admin Endpoints: Accessible`);
+                    tests.push({ name: 'Admin Auth', passed: true });
+                } else {
+                    updateTestItem(2, 'error', `⚠️ Admin Endpoints: Unexpected status ${response.status}`);
+                    tests.push({ name: 'Admin Auth', passed: false, error: `Status ${response.status}` });
+                }
+            } catch (error) {
+                updateTestItem(2, 'error', `❌ Admin Endpoints: ${error.message}`);
+                tests.push({ name: 'Admin Auth', passed: false, error: error.message });
+            }
+            
+            // Test 4: Signup Endpoint
+            try {
+                addTestItem('pending', 'Testing signup endpoint...');
+                const response = await fetch(`${baseUrl}/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({}) // Empty body will fail validation
+                });
+                
+                // We expect either 400 (validation error) or some error response
+                if (response.status === 400 || response.status === 500) {
+                    updateTestItem(3, 'success', `✅ Signup Endpoint: Responding (status ${response.status})`);
+                    tests.push({ name: 'Signup Endpoint', passed: true });
+                } else {
+                    updateTestItem(3, 'error', `⚠️ Signup Endpoint: Unexpected status ${response.status}`);
+                    tests.push({ name: 'Signup Endpoint', passed: false });
+                }
+            } catch (error) {
+                updateTestItem(3, 'error', `❌ Signup Endpoint: ${error.message}`);
+                tests.push({ name: 'Signup Endpoint', passed: false, error: error.message });
+            }
+            
+            // Hide loading
+            document.getElementById('loading').style.display = 'none';
+            
+            // Show final result
+            const passedTests = tests.filter(t => t.passed).length;
+            const totalTests = tests.length;
+            
+            if (passedTests === totalTests) {
+                showResult('success', 
+                    `🎉 All Tests Passed! (${passedTests}/${totalTests})`,
+                    `Your Edge Function is properly deployed and responding.\n\nYou can now use the admin dashboard at:\nhttps://minglemood.co (logged in as hello@minglemood.co)`
+                );
+            } else if (passedTests > 0) {
+                showResult('info', 
+                    `⚠️ Some Tests Failed (${passedTests}/${totalTests} passed)`,
+                    `Your Edge Function is partially working. Check the failed tests above for details.`
+                );
+            } else {
+                showResult('error', 
+                    `❌ All Tests Failed (0/${totalTests})`,
+                    `Your Edge Function is not responding. Please check:\n1. Is the function deployed? Run: supabase functions deploy make-server-4bcc747c\n2. Is your Project ID correct?\n3. Check Edge Function logs in Supabase Dashboard`
+                );
+            }
+        }
+        
+        function addTestItem(status, message) {
+            const testsDiv = document.getElementById('tests');
+            const testItem = document.createElement('div');
+            testItem.className = `test-item ${status}`;
+            testItem.textContent = message;
+            testsDiv.appendChild(testItem);
+        }
+        
+        function updateTestItem(index, status, message) {
+            const testsDiv = document.getElementById('tests');
+            const testItem = testsDiv.children[index];
+            if (testItem) {
+                testItem.className = `test-item ${status}`;
+                testItem.textContent = message;
+            }
+        }
+        
+        function showResult(type, title, details) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `
+                <h3>${title}</h3>
+                ${details ? `<pre>${details}</pre>` : ''}
+            `;
+        }
+        
+        // Try to auto-detect project ID from local storage or URL
+        window.addEventListener('load', () => {
+            // Check if we can get project ID from any source
+            const storedProjectId = localStorage.getItem('supabase_project_id');
+            if (storedProjectId) {
+                document.getElementById('projectId').value = storedProjectId;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MingleMood Backend Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #BF94EA 0%, #FA7872 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #01180B;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #BF94EA;
+        }
+        .test-title {
+            font-weight: 600;
+            color: #01180B;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .success {
+            background: #d1fae5;
+            border: 1px solid #6ee7b7;
+            color: #065f46;
+        }
+        .error {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+        }
+        .loading {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            color: #92400e;
+        }
+        button {
+            background: linear-gradient(135deg, #BF94EA 0%, #FA7872 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .info-box {
+            background: #e0e7ff;
+            border: 1px solid #a5b4fc;
+            color: #3730a3;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-dot.green { background: #10b981; }
+        .status-dot.red { background: #ef4444; }
+        .status-dot.yellow { background: #f59e0b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 MingleMood Backend Test</h1>
+        <p class="subtitle">Testing your Supabase Edge Function deployment</p>
+
+        <div class="info-box">
+            <strong>📍 Project ID:</strong> <span id="projectId">Loading...</span><br>
+            <strong>🔗 Server URL:</strong> <span id="serverUrl">Loading...</span>
+        </div>
+
+        <!-- Test 1: Health Check -->
+        <div class="test-section">
+            <div class="test-title">
+                <span class="status-dot yellow" id="health-dot"></span>
+                Test 1: Health Check
+            </div>
+            <button onclick="testHealth()" id="health-btn">Run Health Check</button>
+            <div id="health-result"></div>
+        </div>
+
+        <!-- Test 2: Admin Stats -->
+        <div class="test-section">
+            <div class="test-title">
+                <span class="status-dot yellow" id="stats-dot"></span>
+                Test 2: Admin Stats (Requires Login)
+            </div>
+            <button onclick="testStats()" id="stats-btn">Get Admin Stats</button>
+            <div id="stats-result"></div>
+        </div>
+
+        <!-- Test 3: Events List -->
+        <div class="test-section">
+            <div class="test-title">
+                <span class="status-dot yellow" id="events-dot"></span>
+                Test 3: Get Events
+            </div>
+            <button onclick="testEvents()" id="events-btn">Get Events List</button>
+            <div id="events-result"></div>
+        </div>
+
+        <!-- Test 4: Database Setup -->
+        <div class="test-section">
+            <div class="test-title">
+                <span class="status-dot yellow" id="db-dot"></span>
+                Test 4: Database Setup (Admin Only)
+            </div>
+            <button onclick="testDatabaseSetup()" id="db-btn">Initialize Database</button>
+            <div id="db-result"></div>
+        </div>
+
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
+            <h3 style="color: #01180B; margin-bottom: 15px;">Quick Actions:</h3>
+            <button onclick="runAllTests()">🧪 Run All Tests</button>
+            <button onclick="location.href='/'">🏠 Go to Dashboard</button>
+            <button onclick="location.href='https://supabase.com/dashboard/project/' + getProjectId() + '/functions'" style="background: #1e40af;">
+                📊 View Edge Functions
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { projectId, publicAnonKey } from './utils/supabase/info.tsx';
+        import { supabase } from './utils/supabase/client.tsx';
+        
+        window.projectId = projectId;
+        window.publicAnonKey = publicAnonKey;
+        window.supabase = supabase;
+        
+        document.getElementById('projectId').textContent = projectId;
+        document.getElementById('serverUrl').textContent = `https://${projectId}.supabase.co/functions/v1/make-server-4bcc747c`;
+
+        window.getProjectId = () => projectId;
+        window.getServerUrl = () => `https://${projectId}.supabase.co/functions/v1/make-server-4bcc747c`;
+        
+        // Auto-run health check on load
+        setTimeout(() => {
+            testHealth();
+        }, 500);
+    </script>
+
+    <script>
+        function getProjectId() {
+            return window.projectId || 'loading...';
+        }
+
+        function getServerUrl() {
+            return window.getServerUrl ? window.getServerUrl() : 'loading...';
+        }
+
+        async function getAccessToken() {
+            const { data: { session } } = await window.supabase.auth.getSession();
+            return session?.access_token;
+        }
+
+        function updateStatus(dotId, status) {
+            const dot = document.getElementById(dotId);
+            dot.className = 'status-dot ' + (status === 'success' ? 'green' : status === 'error' ? 'red' : 'yellow');
+        }
+
+        function showResult(elementId, result, isSuccess) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<div class="result ${isSuccess ? 'success' : 'error'}">${result}</div>`;
+        }
+
+        function showLoading(elementId) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<div class="result loading">⏳ Testing...</div>`;
+        }
+
+        async function testHealth() {
+            const btn = document.getElementById('health-btn');
+            btn.disabled = true;
+            showLoading('health-result');
+
+            try {
+                const response = await fetch(`${getServerUrl()}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('health-dot', 'success');
+                    showResult('health-result', `✅ SUCCESS!\n\nServer Status: ${data.status}\nServer: ${data.server}\nTimestamp: ${data.timestamp}\nCORS: ${data.cors}`, true);
+                } else {
+                    updateStatus('health-dot', 'error');
+                    showResult('health-result', `❌ ERROR\n\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, false);
+                }
+            } catch (error) {
+                updateStatus('health-dot', 'error');
+                showResult('health-result', `❌ CONNECTION ERROR\n\n${error.message}\n\nPossible issues:\n- Edge function not deployed\n- CORS configuration\n- Network issue`, false);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function testStats() {
+            const btn = document.getElementById('stats-btn');
+            btn.disabled = true;
+            showLoading('stats-result');
+
+            try {
+                const token = await getAccessToken();
+                
+                if (!token) {
+                    updateStatus('stats-dot', 'error');
+                    showResult('stats-result', `❌ NOT LOGGED IN\n\nYou need to sign in as admin (hello@minglemood.co) first.\n\nGo to the main dashboard and log in, then come back to this page.`, false);
+                    btn.disabled = false;
+                    return;
+                }
+
+                const response = await fetch(`${getServerUrl()}/admin/stats`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('stats-dot', 'success');
+                    showResult('stats-result', `✅ SUCCESS!\n\n${JSON.stringify(data, null, 2)}`, true);
+                } else {
+                    updateStatus('stats-dot', 'error');
+                    showResult('stats-result', `❌ ERROR\n\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, false);
+                }
+            } catch (error) {
+                updateStatus('stats-dot', 'error');
+                showResult('stats-result', `❌ ERROR\n\n${error.message}`, false);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function testEvents() {
+            const btn = document.getElementById('events-btn');
+            btn.disabled = true;
+            showLoading('events-result');
+
+            try {
+                const response = await fetch(`${getServerUrl()}/events`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('events-dot', 'success');
+                    showResult('events-result', `✅ SUCCESS!\n\nFound ${data.events?.length || 0} events\n\n${JSON.stringify(data, null, 2)}`, true);
+                } else {
+                    updateStatus('events-dot', 'error');
+                    showResult('events-result', `❌ ERROR\n\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, false);
+                }
+            } catch (error) {
+                updateStatus('events-dot', 'error');
+                showResult('events-result', `❌ ERROR\n\n${error.message}`, false);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function testDatabaseSetup() {
+            const btn = document.getElementById('db-btn');
+            btn.disabled = true;
+            showLoading('db-result');
+
+            try {
+                const token = await getAccessToken();
+                
+                if (!token) {
+                    updateStatus('db-dot', 'error');
+                    showResult('db-result', `❌ NOT LOGGED IN\n\nYou need to sign in as admin first.`, false);
+                    btn.disabled = false;
+                    return;
+                }
+
+                const response = await fetch(`${getServerUrl()}/setup-database`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('db-dot', 'success');
+                    showResult('db-result', `✅ SUCCESS!\n\n${JSON.stringify(data, null, 2)}`, true);
+                } else {
+                    updateStatus('db-dot', 'error');
+                    showResult('db-result', `❌ ERROR\n\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, false);
+                }
+            } catch (error) {
+                updateStatus('db-dot', 'error');
+                showResult('db-result', `❌ ERROR\n\n${error.message}`, false);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function runAllTests() {
+            await testHealth();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await testEvents();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await testStats();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await testDatabaseSetup();
+        }
+    </script>
+</body>
+</html>
