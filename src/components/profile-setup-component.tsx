@@ -368,24 +368,24 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
   const toggleInterest = (interest: string) => {
     setProfileData(prev => ({
       ...prev,
-      interests: prev.interests.includes(interest)
-        ? prev.interests.filter(i => i !== interest)
-        : [...prev.interests, interest]
+      interests: (prev.interests || []).includes(interest)
+        ? (prev.interests || []).filter(i => i !== interest)
+        : [...(prev.interests || []), interest]
     }));
   };
 
   const togglePreferredEthnicity = (ethnicity: string) => {
     setProfileData(prev => {
       const current = prev.preferredEthnicities;
-      if (current.includes(ethnicity)) {
+      if ((current || []).includes(ethnicity)) {
         return {
           ...prev,
-          preferredEthnicities: current.filter(e => e !== ethnicity)
+          preferredEthnicities: (current || []).filter(e => e !== ethnicity)
         };
-      } else if (current.length < 5) {
+      } else if ((current || []).length < 5) {
         return {
           ...prev,
-          preferredEthnicities: [...current, ethnicity]
+          preferredEthnicities: [...(current || []), ethnicity]
         };
       }
       return prev; // Don't add if already at limit of 5
@@ -395,15 +395,15 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
   const togglePreferredReligion = (religion: string) => {
     setProfileData(prev => {
       const current = prev.preferredReligions;
-      if (current.includes(religion)) {
+      if ((current || []).includes(religion)) {
         return {
           ...prev,
-          preferredReligions: current.filter(r => r !== religion)
+          preferredReligions: (current || []).filter(r => r !== religion)
         };
-      } else if (current.length < 5) {
+      } else if ((current || []).length < 5) {
         return {
           ...prev,
-          preferredReligions: [...current, religion]
+          preferredReligions: [...(current || []), religion]
         };
       }
       return prev; // Don't add if already at limit of 5
@@ -413,15 +413,15 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
   const togglePreferredAgeRange = (ageRange: string) => {
     setProfileData(prev => {
       const current = prev.preferredAgeRanges;
-      if (current.includes(ageRange)) {
+      if ((current || []).includes(ageRange)) {
         return {
           ...prev,
-          preferredAgeRanges: current.filter(r => r !== ageRange)
+          preferredAgeRanges: (current || []).filter(r => r !== ageRange)
         };
-      } else if (current.length < 2) {
+      } else if ((current || []).length < 2) {
         return {
           ...prev,
-          preferredAgeRanges: [...current, ageRange]
+          preferredAgeRanges: [...(current || []), ageRange]
         };
       }
       return prev; // Don't add if already at limit of 2
@@ -826,7 +826,7 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
                       <div
                         key={interest}
                         className={`p-2 rounded-lg border cursor-pointer text-center text-sm transition-colors ${
-                          profileData.interests.includes(interest)
+                          (profileData.interests || []).includes(interest)
                             ? 'bg-pink-100 border-pink-300 text-pink-700'
                             : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
                         }`}
@@ -927,7 +927,7 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
                       <div
                         key={range}
                         className={`p-2 rounded-lg border cursor-pointer text-center text-sm transition-colors ${
-                          profileData.preferredAgeRanges.includes(range)
+                          (profileData.preferredAgeRanges || []).includes(range)
                             ? 'bg-pink-100 border-pink-300 text-pink-700'
                             : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
                         }`}
@@ -963,7 +963,7 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
                       <div
                         key={ethnicity}
                         className={`p-2 rounded-lg border cursor-pointer text-center text-sm transition-colors ${
-                          profileData.preferredEthnicities.includes(ethnicity)
+                          (profileData.preferredEthnicities || []).includes(ethnicity)
                             ? 'bg-pink-100 border-pink-300 text-pink-700'
                             : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
                         }`}
@@ -999,7 +999,7 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
                       <div
                         key={religion}
                         className={`p-2 rounded-lg border cursor-pointer text-center text-sm transition-colors ${
-                          profileData.preferredReligions.includes(religion)
+                          (profileData.preferredReligions || []).includes(religion)
                             ? 'bg-pink-100 border-pink-300 text-pink-700'
                             : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
                         }`}
