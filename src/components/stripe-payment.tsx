@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { CreditCard, Lock, CheckCircle } from 'lucide-react';
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 
 interface StripePaymentProps {
   amount: number;
