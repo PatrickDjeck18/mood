@@ -513,7 +513,7 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
           const hasAgePrefs = profileData.preferredAgeRanges && (profileData.preferredAgeRanges?.length || 0) > 0 && !!profileData.ageFlexibility;
           const hasEthnicityPref = !!profileData.ethnicityFlexibility;
           const hasReligionPref = !!profileData.religionFlexibility;
-          const hasImportanceRatings = profileData.importanceRatings && Object.values(profileData.importanceRatings).every(rating => rating !== '');
+          const hasImportanceRatings = profileData.importanceRatings && Object.values(profileData.importanceRatings || {}).every(rating => rating !== '');
           const step4Result = hasAgePrefs && hasEthnicityPref && hasReligionPref && hasImportanceRatings;
           console.log('✅ Step 4: Can proceed?', step4Result, '- Age prefs:', hasAgePrefs, 'Ethnicity pref:', hasEthnicityPref, 'Religion pref:', hasReligionPref, 'Importance ratings:', hasImportanceRatings);
           return step4Result;
@@ -1042,11 +1042,11 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
                     <div key={key}>
                       <Label className="text-sm">{label}</Label>
                       <Select
-                        value={profileData.importanceRatings[key as keyof typeof profileData.importanceRatings]}
+                        value={profileData.importanceRatings?.[key as keyof typeof profileData.importanceRatings] || ''}
                         onValueChange={(value) => setProfileData(prev => ({
                           ...prev,
                           importanceRatings: {
-                            ...prev.importanceRatings,
+                            ...(prev.importanceRatings || {}),
                             [key]: value
                           }
                         }))}
