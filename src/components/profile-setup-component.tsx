@@ -278,9 +278,9 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
     const file = (event.target as HTMLInputElement).files?.[0];
     
     console.log('📸 File selected:', file ? file.name : 'No file');
-    console.log('📊 Current photos count:', profileData.photos.length);
+    console.log('📊 Current photos count:', profileData.photos?.length || 0);
     
-    if (file && profileData.photos.length < 6) {
+    if (file && (profileData.photos?.length || 0) < 6) {
       // Enhanced mobile-friendly validation
       const maxSize = 10 * 1024 * 1024; // 10MB file size limit
       if (file.size > maxSize) {
@@ -342,7 +342,7 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
         alert('Error starting photo upload. Please try again.');
         setUploadingPhoto(false);
       }
-    } else if (profileData.photos.length >= 6) {
+    } else if ((profileData.photos?.length || 0) >= 6) {
       alert('You can upload a maximum of 6 photos. Remove a photo first by tapping the X button on any existing photo.');
     } else if (!file) {
       console.log('📸 No file selected');
@@ -492,13 +492,13 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
         case 1:
           // Step 1: Photos & Basic Info - Require at least 1 photo and basic info
           const hasBasicInfo = !!(profileData.name && profileData.age && profileData.gender && profileData.location);
-          const step1Result = profileData.photos && profileData.photos.length >= 1 && hasBasicInfo;
+          const step1Result = profileData.photos && (profileData.photos?.length || 0) >= 1 && hasBasicInfo;
           console.log('✅ Step 1: Can proceed?', step1Result, '- Photos:', profileData.photos?.length || 0, 'Basic info:', hasBasicInfo);
           return step1Result;
           
         case 2:
           // Step 2: Professional Info - Require profession, education, and at least 3 interests
-          const step2Result = !!(profileData.profession && profileData.education && profileData.interests && profileData.interests.length >= 3);
+          const step2Result = !!(profileData.profession && profileData.education && profileData.interests && (profileData.interests?.length || 0) >= 3);
           console.log('✅ Step 2: Can proceed?', step2Result, '- Profession:', !!profileData.profession, 'Education:', !!profileData.education, 'Interests:', profileData.interests?.length || 0);
           return step2Result;
           
@@ -510,7 +510,7 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
           
         case 4:
           // Step 4: Dating Preferences - Require at least basic preferences
-          const hasAgePrefs = profileData.preferredAgeRanges && profileData.preferredAgeRanges.length > 0 && !!profileData.ageFlexibility;
+          const hasAgePrefs = profileData.preferredAgeRanges && (profileData.preferredAgeRanges?.length || 0) > 0 && !!profileData.ageFlexibility;
           const hasEthnicityPref = !!profileData.ethnicityFlexibility;
           const hasReligionPref = !!profileData.religionFlexibility;
           const hasImportanceRatings = profileData.importanceRatings && Object.values(profileData.importanceRatings).every(rating => rating !== '');
@@ -660,7 +660,7 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
                     </div>
                   ))}
                   
-                  {profileData.photos.length < 6 && (
+                  {(profileData.photos?.length || 0) < 6 && (
                     <button
                       onClick={() => handlePhotoUpload('gallery')}
                       disabled={uploadingPhoto}
@@ -837,7 +837,7 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
                     ))}
                   </div>
                   <p className="text-sm text-gray-500 mt-2">
-                    Selected: {profileData.interests.length} (minimum 3 required)
+                    Selected: {profileData.interests?.length || 0} (minimum 3 required)
                   </p>
                 </div>
 
@@ -938,7 +938,7 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
                     ))}
                   </div>
                   <p className="text-sm text-gray-500 mt-2">
-                    Selected: {profileData.preferredAgeRanges.length} (maximum 2)
+                    Selected: {profileData.preferredAgeRanges?.length || 0} (maximum 2)
                   </p>
                 </div>
 
@@ -974,7 +974,7 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
                     ))}
                   </div>
                   <p className="text-sm text-gray-500 mt-2">
-                    Selected: {profileData.preferredEthnicities.length} (maximum 5)
+                    Selected: {profileData.preferredEthnicities?.length || 0} (maximum 5)
                   </p>
                 </div>
 
@@ -1010,7 +1010,7 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
                     ))}
                   </div>
                   <p className="text-sm text-gray-500 mt-2">
-                    Selected: {profileData.preferredReligions.length} (maximum 5)
+                    Selected: {profileData.preferredReligions?.length || 0} (maximum 5)
                   </p>
                 </div>
 
@@ -1076,7 +1076,7 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="font-semibold mb-2">Photos ({profileData.photos.length})</h3>
+                    <h3 className="font-semibold mb-2">Photos ({profileData.photos?.length || 0})</h3>
                     <div className="grid grid-cols-3 gap-2">
                       {profileData.photos.map((photo, index) => (
                         <ImageWithFallback
