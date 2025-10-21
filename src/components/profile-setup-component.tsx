@@ -492,14 +492,14 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
         case 1:
           // Step 1: Photos & Basic Info - Require at least 1 photo and basic info
           const hasBasicInfo = !!(profileData.name && profileData.age && profileData.gender && profileData.location);
-          const step1Result = profileData.photos.length >= 1 && hasBasicInfo;
-          console.log('✅ Step 1: Can proceed?', step1Result, '- Photos:', profileData.photos.length, 'Basic info:', hasBasicInfo);
+          const step1Result = profileData.photos && profileData.photos.length >= 1 && hasBasicInfo;
+          console.log('✅ Step 1: Can proceed?', step1Result, '- Photos:', profileData.photos?.length || 0, 'Basic info:', hasBasicInfo);
           return step1Result;
           
         case 2:
           // Step 2: Professional Info - Require profession, education, and at least 3 interests
-          const step2Result = !!(profileData.profession && profileData.education && profileData.interests.length >= 3);
-          console.log('✅ Step 2: Can proceed?', step2Result, '- Profession:', !!profileData.profession, 'Education:', !!profileData.education, 'Interests:', profileData.interests.length);
+          const step2Result = !!(profileData.profession && profileData.education && profileData.interests && profileData.interests.length >= 3);
+          console.log('✅ Step 2: Can proceed?', step2Result, '- Profession:', !!profileData.profession, 'Education:', !!profileData.education, 'Interests:', profileData.interests?.length || 0);
           return step2Result;
           
         case 3:
@@ -510,10 +510,10 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
           
         case 4:
           // Step 4: Dating Preferences - Require at least basic preferences
-          const hasAgePrefs = profileData.preferredAgeRanges.length > 0 && !!profileData.ageFlexibility;
+          const hasAgePrefs = profileData.preferredAgeRanges && profileData.preferredAgeRanges.length > 0 && !!profileData.ageFlexibility;
           const hasEthnicityPref = !!profileData.ethnicityFlexibility;
           const hasReligionPref = !!profileData.religionFlexibility;
-          const hasImportanceRatings = Object.values(profileData.importanceRatings).every(rating => rating !== '');
+          const hasImportanceRatings = profileData.importanceRatings && Object.values(profileData.importanceRatings).every(rating => rating !== '');
           const step4Result = hasAgePrefs && hasEthnicityPref && hasReligionPref && hasImportanceRatings;
           console.log('✅ Step 4: Can proceed?', step4Result, '- Age prefs:', hasAgePrefs, 'Ethnicity pref:', hasEthnicityPref, 'Religion pref:', hasReligionPref, 'Importance ratings:', hasImportanceRatings);
           return step4Result;
@@ -529,6 +529,10 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
       }
     } catch (error) {
       console.error('❌ Error in canProceed:', error);
+      // Show error to user for debugging on mobile
+      if (isMobileDevice) {
+        alert('Validation error: ' + (error instanceof Error ? error.message : String(error)));
+      }
       return false; // Default to not allowing proceed on error
     }
   };
@@ -1262,16 +1266,16 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
                   <p><strong>Current Step:</strong> {currentStep} of {totalSteps}</p>
                   <p><strong>Processing:</strong> {isProcessing ? 'Yes' : 'No'}</p>
                   <p><strong>Can Proceed:</strong> {canProceed() ? 'Yes' : 'No'}</p>
-                  <p><strong>Photos:</strong> {profileData.photos.length}</p>
-                  <p><strong>Name:</strong> {profileData.name || '(empty)'}</p>
-                  <p><strong>Age:</strong> {profileData.age || '(empty)'}</p>
-                  <p><strong>Gender:</strong> {profileData.gender || '(empty)'}</p>
-                  <p><strong>Location:</strong> {profileData.location || '(empty)'}</p>
+                  <p><strong>Photos:</strong> {profileData?.photos?.length || 0}</p>
+                  <p><strong>Name:</strong> {profileData?.name || '(empty)'}</p>
+                  <p><strong>Age:</strong> {profileData?.age || '(empty)'}</p>
+                  <p><strong>Gender:</strong> {profileData?.gender || '(empty)'}</p>
+                  <p><strong>Location:</strong> {profileData?.location || '(empty)'}</p>
                   {currentStep === 2 && (
                     <>
-                      <p><strong>Profession:</strong> {profileData.profession || '(empty)'}</p>
-                      <p><strong>Education:</strong> {profileData.education || '(empty)'}</p>
-                      <p><strong>Interests:</strong> {profileData.interests.length}</p>
+                      <p><strong>Profession:</strong> {profileData?.profession || '(empty)'}</p>
+                      <p><strong>Education:</strong> {profileData?.education || '(empty)'}</p>
+                      <p><strong>Interests:</strong> {profileData?.interests?.length || 0}</p>
                     </>
                   )}
                   {currentStep === 3 && (
