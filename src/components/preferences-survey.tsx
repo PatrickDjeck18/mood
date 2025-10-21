@@ -317,13 +317,13 @@ export function PreferencesSurvey({ user, onComplete, onCancel }: PreferencesSur
                         id={hobby}
                         checked={surveyData.hobbies.includes(hobby)}
                         onCheckedChange={(checked) => {
-                          if (checked && surveyData.hobbies.length < 3) {
+                          if (checked && (surveyData.hobbies?.length || 0) < 3) {
                             updateSurveyData('hobbies', [...surveyData.hobbies, hobby]);
                           } else if (!checked) {
                             updateSurveyData('hobbies', surveyData.hobbies.filter(h => h !== hobby));
                           }
                         }}
-                        disabled={!surveyData.hobbies.includes(hobby) && surveyData.hobbies.length >= 3}
+                        disabled={!surveyData.hobbies.includes(hobby) && (surveyData.hobbies?.length || 0) >= 3}
                       />
                       <Label htmlFor={hobby} className="text-sm">{hobby}</Label>
                     </div>
@@ -339,14 +339,14 @@ export function PreferencesSurvey({ user, onComplete, onCancel }: PreferencesSur
                       placeholder="Write your hobby/interest here..."
                       value={surveyData.otherHobby || ''}
                       onChange={(e) => updateSurveyData('otherHobby', e.target.value)}
-                      disabled={surveyData.hobbies.length >= 3 && !surveyData.hobbies.includes('Other: ' + (surveyData.otherHobby || ''))}
+                      disabled={(surveyData.hobbies?.length || 0) >= 3 && !surveyData.hobbies.includes('Other: ' + (surveyData.otherHobby || ''))}
                       className="flex-1"
                     />
                     <Button
                       type="button"
                       size="sm"
                       onClick={() => {
-                        if (surveyData.otherHobby && surveyData.otherHobby.trim() && surveyData.hobbies.length < 3) {
+                        if (surveyData.otherHobby && surveyData.otherHobby.trim() && (surveyData.hobbies?.length || 0) < 3) {
                           const otherEntry = 'Other: ' + surveyData.otherHobby.trim();
                           if (!surveyData.hobbies.includes(otherEntry)) {
                             updateSurveyData('hobbies', [...surveyData.hobbies, otherEntry]);
@@ -354,7 +354,7 @@ export function PreferencesSurvey({ user, onComplete, onCancel }: PreferencesSur
                           }
                         }
                       }}
-                      disabled={!surveyData.otherHobby?.trim() || surveyData.hobbies.length >= 3}
+                      disabled={!surveyData.otherHobby?.trim() || (surveyData.hobbies?.length || 0) >= 3}
                       className="bg-[#BF94EA] hover:bg-[#BF94EA]/90 text-white"
                     >
                       Add
@@ -363,7 +363,7 @@ export function PreferencesSurvey({ user, onComplete, onCancel }: PreferencesSur
                 </div>
                 
                 <p className="text-sm text-gray-500 mt-2">
-                  Selected: {surveyData.hobbies.length}/3
+                  Selected: {surveyData.hobbies?.length || 0}/3
                 </p>
               </div>
               
@@ -701,13 +701,13 @@ export function PreferencesSurvey({ user, onComplete, onCancel }: PreferencesSur
                     id={descriptor}
                     checked={surveyData.additionalDescriptors.includes(descriptor)}
                     onCheckedChange={(checked) => {
-                      if (checked && surveyData.additionalDescriptors.length < 15) {
+                      if (checked && (surveyData.additionalDescriptors?.length || 0) < 15) {
                         updateSurveyData('additionalDescriptors', [...surveyData.additionalDescriptors, descriptor]);
                       } else if (!checked) {
                         updateSurveyData('additionalDescriptors', surveyData.additionalDescriptors.filter(d => d !== descriptor));
                       }
                     }}
-                    disabled={!surveyData.additionalDescriptors.includes(descriptor) && surveyData.additionalDescriptors.length >= 15}
+                    disabled={!surveyData.additionalDescriptors.includes(descriptor) && (surveyData.additionalDescriptors?.length || 0) >= 15}
                   />
                   <Label htmlFor={descriptor} className="text-sm flex-1">{descriptor}</Label>
                 </div>
@@ -716,10 +716,10 @@ export function PreferencesSurvey({ user, onComplete, onCancel }: PreferencesSur
             
             <div className="mt-6">
               <p className="text-sm text-gray-600 mb-4">
-                Selected: {surveyData.additionalDescriptors.length}/15
+                Selected: {surveyData.additionalDescriptors?.length || 0}/15
               </p>
               
-              {surveyData.additionalDescriptors.length > 0 && (
+              {(surveyData.additionalDescriptors?.length || 0) > 0 && (
                 <div className="space-y-3">
                   <h5 className="font-medium">Rate importance for your partner:</h5>
                   {surveyData.additionalDescriptors.map((descriptor) => (
@@ -768,20 +768,20 @@ export function PreferencesSurvey({ user, onComplete, onCancel }: PreferencesSur
                         id={dealBreaker}
                         checked={surveyData.dealBreakers.includes(dealBreaker)}
                         onCheckedChange={(checked) => {
-                          if (checked && surveyData.dealBreakers.length < 8) {
+                          if (checked && (surveyData.dealBreakers?.length || 0) < 8) {
                             updateSurveyData('dealBreakers', [...surveyData.dealBreakers, dealBreaker]);
                           } else if (!checked) {
                             updateSurveyData('dealBreakers', surveyData.dealBreakers.filter(d => d !== dealBreaker));
                           }
                         }}
-                        disabled={!surveyData.dealBreakers.includes(dealBreaker) && surveyData.dealBreakers.length >= 8}
+                        disabled={!surveyData.dealBreakers.includes(dealBreaker) && (surveyData.dealBreakers?.length || 0) >= 8}
                       />
                       <Label htmlFor={dealBreaker} className="text-sm">{dealBreaker}</Label>
                     </div>
                   ))}
                 </div>
                 <p className="text-sm text-gray-500 mt-2">
-                  Selected: {surveyData.dealBreakers.length}/8
+                  Selected: {surveyData.dealBreakers?.length || 0}/8
                 </p>
               </div>
               

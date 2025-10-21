@@ -481,7 +481,7 @@ export function ProfileViewer({ user, trigger }: ProfileViewerProps) {
                 )}
 
                 {/* Additional Descriptors */}
-                {surveyData.additionalDescriptors && surveyData.additionalDescriptors.length > 0 && (
+                {surveyData.additionalDescriptors && (surveyData.additionalDescriptors?.length || 0) > 0 && (
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center space-x-2">
