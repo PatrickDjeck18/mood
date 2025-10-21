@@ -848,10 +848,10 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
                       id="linkedin"
                       type="url"
                       placeholder="https://linkedin.com/in/yourprofile"
-                      value={profileData.socialMedia.linkedin}
+                      value={profileData.socialMedia?.linkedin || ''}
                       onChange={(e) => setProfileData(prev => ({ 
                         ...prev, 
-                        socialMedia: { ...prev.socialMedia, linkedin: e.target.value }
+                        socialMedia: { ...(prev.socialMedia || {}), linkedin: e.target.value }
                       }))}
                     />
                   </div>
@@ -861,10 +861,10 @@ export function ProfileSetupComponent({ user, onProfileComplete }: ProfileSetupP
                       id="instagram"
                       type="text"
                       placeholder="@yourusername"
-                      value={profileData.socialMedia.instagram}
+                      value={profileData.socialMedia?.instagram || ''}
                       onChange={(e) => setProfileData(prev => ({ 
                         ...prev, 
-                        socialMedia: { ...prev.socialMedia, instagram: e.target.value }
+                        socialMedia: { ...(prev.socialMedia || {}), instagram: e.target.value }
                       }))}
                     />
                   </div>
